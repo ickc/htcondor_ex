@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+import argparse
+
+def main(args):
+    # Open the input files in read mode
+    with open(args.input_file1, 'r') as file1, open(args.input_file2, 'r') as file2:
+        # Read the contents of the input files
+        file1_contents = file1.read()
+        file2_contents = file2.read()
+
+    # Add the contents of the input files
+    result = str(int(file1_contents) + int(file2_contents))
+
+    # Open the output file in write mode and write the result to it
+    with open(args.output_file, 'w') as output_file:
+        output_file.write(result)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Add contents of two files')
+    parser.add_argument('input_file1', type=str, help='path to first input file')
+    parser.add_argument('input_file2', type=str, help='path to second input file')
+    parser.add_argument('output_file', type=str, help='path to output file')
+    args = parser.parse_args()
+    main(args)
