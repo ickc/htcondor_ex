@@ -2,3 +2,5 @@
 *.out
 *.log
 *.txt
+examples/parallel/log
+examples/parallel-cpu/logfile
