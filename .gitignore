@@ -4,3 +4,4 @@
 *.txt
 examples/parallel/log
 examples/parallel-cpu/logfile
+mpi_hello_world
