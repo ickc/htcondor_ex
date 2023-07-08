@@ -80,7 +80,7 @@ fi
 
 # If MPDIR is not set, then use a default value
 if [ -z $MPDIR ]; then
-	echo >&2 "WARNING: Using default value for \$MPDIR in openmpiscript"
+	echo >&2 'WARNING: Using default value for $MPDIR in openmpiscript'
 	MPDIR=/usr/lib64/openmpi
 fi
 PATH=$MPDIR/bin:.:$PATH
@@ -88,7 +88,7 @@ export PATH
 
 # If EXINT is not set, then use some default values
 if [ -z $EXINT ]; then
-	echo >&2 "WARNING: Using default values for \$EXINT in openmpiscript"
+	echo >&2 'WARNING: Using default values for $EXINT in openmpiscript'
 	EXINT="docker0,virbr0"
 fi
 ##
@@ -113,7 +113,7 @@ force_cleanup() {
 
 		# Give mpirun 30 seconds to terminate nicely
 		for i in {1..30}; do
-			kill -0 $_mpirun_pid 2>/dev/null # returns 0 if running
+			kill -0 $_mpirun_pid 2> /dev/null # returns 0 if running
 			_mpirun_killed=$?
 			if [ $_mpirun_killed -ne 0 ]; then
 				break
@@ -155,13 +155,13 @@ done
 HOSTFILE=$_CONDOR_SCRATCH_DIR/$HOSTFILE
 REQUEST_CPUS=$(condor_q -jobads $_CONDOR_JOB_AD -af RequestCpus)
 
-for node in $(seq 0 $(($_CONDOR_NPROCS - 1))); do
+for node in $(seq 0 $((_CONDOR_NPROCS - 1))); do
 	if $USE_OPENMP; then
 		# OpenMP will do the threading on the execute node
-		echo "$node slots=1" >>$HOSTFILE
+		echo "$node slots=1" >> $HOSTFILE
 	else
 		# OpenMPI will do the threading on the execute node
-		echo "$node slots=$REQUEST_CPUS" >>$HOSTFILE
+		echo "$node slots=$REQUEST_CPUS" >> $HOSTFILE
 	fi
 done
 
