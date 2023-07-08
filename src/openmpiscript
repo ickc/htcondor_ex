@@ -72,14 +72,15 @@ EXINT=$(condor_config_val OPENMPI_EXCLUDE_NETWORK_INTERFACES)
 # so that OpenMPI caches all data under the user's scratch directory.
 # Not having /tmp mounted under scratch may hang mpi jobs.
 _USE_SCRATCH=$(condor_config_val MOUNT_UNDER_SCRATCH)
-if [ -z $_USE_SCRATCH ]; then
+if [[ -z "$_USE_SCRATCH" ]]; then
 	echo >&2 "WARNING: MOUNT_UNDER_SCRATCH not set in condor_config"
 elif test "${_USE_SCRATCH#*/tmp}" == "$_USE_SCRATCH"; then
 	echo >&2 "WARNING: /tmp not included in MOUNT_UNDER_SCRATCH"
 fi
 
 # If MPDIR is not set, then use a default value
-if [ -z $MPDIR ]; then
+if [[ -z "$MPDIR" ]]; then
+	# shellcheck disable=SC2016
 	echo >&2 'WARNING: Using default value for $MPDIR in openmpiscript'
 	MPDIR=/usr/lib64/openmpi
 fi
@@ -87,7 +88,8 @@ PATH=$MPDIR/bin:.:$PATH
 export PATH
 
 # If EXINT is not set, then use some default values
-if [ -z $EXINT ]; then
+if [[ -z "$EXINT" ]]; then
+	# shellcheck disable=SC2016
 	echo >&2 'WARNING: Using default values for $EXINT in openmpiscript'
 	EXINT="docker0,virbr0"
 fi
@@ -99,32 +101,32 @@ _mpirun_pid=0
 CONDOR_CHIRP=$(condor_config_val libexec)/condor_chirp
 force_cleanup() {
 	# Forward SIGTERM to the orted launcher
-	if [ $_orted_launcher_pid -ne 0 ]; then
-		kill -s SIGTERM $_orted_launcher_pid
+	if [[ "$_orted_launcher_pid" -ne 0 ]]; then
+		kill -s SIGTERM "$_orted_launcher_pid"
 	fi
 
 	# Cleanup mpirun
-	if [ $_CONDOR_PROCNO -eq 0 ] && [ $_mpirun_pid -ne 0 ]; then
+	if [[ "$_CONDOR_PROCNO" != 0 && "$_mpirun_pid" != 0 ]]; then
 		$CONDOR_CHIRP ulog "Node $_CONDOR_PROCNO caught SIGTERM, cleaning up mpirun"
-		rm $HOSTFILE
+		rm "$HOSTFILE"
 
 		# Send SIGTERM to mpirun and the orted launcher
-		kill -s SIGTERM $_mpirun_pid
+		kill -s SIGTERM "$_mpirun_pid"
 
 		# Give mpirun 30 seconds to terminate nicely
-		for i in {1..30}; do
-			kill -0 $_mpirun_pid 2> /dev/null # returns 0 if running
+		for _ in {1..30}; do
+			kill -0 "$_mpirun_pid" 2> /dev/null # returns 0 if running
 			_mpirun_killed=$?
-			if [ $_mpirun_killed -ne 0 ]; then
+			if [ "$_mpirun_killed" -ne 0 ]; then
 				break
 			fi
 			sleep 1
 		done
 
 		# If mpirun is still running, send SIGKILL
-		if [ $_mpirun_killed -eq 0 ]; then
+		if [ "$_mpirun_killed" -eq 0 ]; then
 			$CONDOR_CHIRP ulog "mpirun hung on Node ${_CONDOR_PROCNO}, sending SIGKILL!"
-			kill -s SIGKILL $_mpirun_pid
+			kill -s SIGKILL "$_mpirun_pid"
 		fi
 
 	fi
@@ -139,7 +141,7 @@ export PATH=$MPDIR/bin:$PATH
 # Run the orted launcher (gets orted command from condor_chirp)
 $ORTED_LAUNCHER &
 _orted_launcher_pid=$!
-if [ $_CONDOR_PROCNO -ne 0 ]; then
+if [ "$_CONDOR_PROCNO" -ne 0 ]; then
 	# If not on node 0, wait for orted
 	wait $_orted_launcher_pid
 	exit $?
@@ -149,26 +151,26 @@ fi
 ## head node (node 0) setup
 # Build the hostfile
 HOSTFILE=hosts
-while [ -f $_CONDOR_SCRATCH_DIR/$HOSTFILE ]; do
+while [[ -f "$_CONDOR_SCRATCH_DIR/$HOSTFILE" ]]; do
 	HOSTFILE=x$HOSTFILE
 done
 HOSTFILE=$_CONDOR_SCRATCH_DIR/$HOSTFILE
-REQUEST_CPUS=$(condor_q -jobads $_CONDOR_JOB_AD -af RequestCpus)
+REQUEST_CPUS=$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)
 
 for node in $(seq 0 $((_CONDOR_NPROCS - 1))); do
 	if $USE_OPENMP; then
 		# OpenMP will do the threading on the execute node
-		echo "$node slots=1" >> $HOSTFILE
+		echo "$node slots=1" >> "$HOSTFILE"
 	else
 		# OpenMPI will do the threading on the execute node
-		echo "$node slots=$REQUEST_CPUS" >> $HOSTFILE
+		echo "$node slots=$REQUEST_CPUS" >> "$HOSTFILE"
 	fi
 done
 
 # Make sure the executable is executable
 EXECUTABLE=$1
 shift
-chmod +x $EXECUTABLE
+chmod +x "$EXECUTABLE"
 ##
 
 ## run mpirun
@@ -192,7 +194,8 @@ export OMPI_MCA_btl_tcp_if_exclude="lo,$EXINT"   # exclude unused tcp network in
 #export OMPI_MCA_btl_base_verbose=30
 
 # Run mpirun in the background and wait for it to exit
-mpirun -v --prefix $MPDIR -hostfile $HOSTFILE $EXECUTABLE $@ &
+# shellcheck disable=SC2068
+mpirun -v --prefix "$MPDIR" -hostfile "$HOSTFILE" "$EXECUTABLE" $@ &
 _mpirun_pid=$!
 wait $_mpirun_pid
 _mpirun_exit=$?
@@ -200,5 +203,5 @@ _mpirun_exit=$?
 ## clean up
 # Wait for orted to finish
 wait $_orted_launcher_pid
-rm $HOSTFILE
+rm "$HOSTFILE"
 exit $_mpirun_exit
