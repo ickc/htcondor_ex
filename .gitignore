@@ -4,7 +4,7 @@
 *.txt
 examples/parallel/log
 examples/parallel-cpu/logfile
-mpi_hello_world
+bin/
 examples/parallel-cpu/infile.*
 examples/parallel-cpu/outfile.*
 examples/parallel-cpu/errfile.*
