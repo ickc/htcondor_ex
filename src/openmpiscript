@@ -56,6 +56,7 @@ GET_ORTED_CMD="$(condor_config_val libexec)/get_orted_cmd.sh"
 # The pool admin may set it via OPENMPI_INSTALL_PATH in the condor_config (recommended)
 # MPDIR="$(condor_config_val OPENMPI_INSTALL_PATH)"
 # Or set it manually
+module load mpi/openmpi3-x86_64
 MPDIR=/usr/lib64/openmpi3
 
 # $EXINT is a comma-delimited list of excluded network interfaces.
@@ -84,8 +85,8 @@ fi
 # 	echo >&2 'WARNING: Using default value for $MPDIR in openmpiscript'
 # 	MPDIR=/usr/lib64/openmpi
 # fi
-PATH="$MPDIR/bin:.:$PATH"
-export PATH
+# PATH="$MPDIR/bin:.:$PATH"
+# export PATH
 
 # If EXINT is not set, then use some default values
 if [[ -z "$EXINT" ]]; then
@@ -136,7 +137,7 @@ trap force_cleanup SIGTERM
 ##
 
 ## execute node setup
-export "PATH=$MPDIR/bin:$PATH"
+# export "PATH=$MPDIR/bin:$PATH"
 
 # Run the orted launcher (gets orted command from condor_chirp)
 "$ORTED_LAUNCHER" &
