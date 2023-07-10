@@ -1,5 +1,5 @@
 submit:
-	condor_submit example.ini
+	condor_submit -i example.ini
 
 clean:
 	find . -type f \! \( -name makefile -o -name example.ini \) -delete
