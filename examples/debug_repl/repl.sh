@@ -24,8 +24,13 @@ print_double_line
 echo "Avaiable MPI:"
 module avail mpi
 
+module load mpi/openmpi3-x86_64
+
+print_double_line
+echo "Current environment:"
+env
+
 print_double_line
 echo "module path:"
-module load mpi/openmpi3-x86_64
 which mpicc
 which mpirun
