@@ -1,3 +1,6 @@
+submit:
+	condor_submit science3.sub
+
 init:
 	./create_science.py
 
