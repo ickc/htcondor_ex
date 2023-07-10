@@ -54,9 +54,9 @@ GET_ORTED_CMD="$(condor_config_val libexec)/get_orted_cmd.sh"
 
 # $MPDIR points to the location of the OpenMPI install
 # The pool admin may set it via OPENMPI_INSTALL_PATH in the condor_config (recommended)
-MPDIR="$(condor_config_val OPENMPI_INSTALL_PATH)"
+# MPDIR="$(condor_config_val OPENMPI_INSTALL_PATH)"
 # Or set it manually
-#MPDIR=/usr/lib64/openmpi
+MPDIR=/usr/lib64/openmpi3
 
 # $EXINT is a comma-delimited list of excluded network interfaces.
 # If your mpi jobs are hanging, OpenMPI may be trying to use too many
@@ -79,11 +79,11 @@ elif test "${_USE_SCRATCH#*/tmp}" == "$_USE_SCRATCH"; then
 fi
 
 # If MPDIR is not set, then use a default value
-if [[ -z "$MPDIR" ]]; then
-	# shellcheck disable=SC2016
-	echo >&2 'WARNING: Using default value for $MPDIR in openmpiscript'
-	MPDIR=/usr/lib64/openmpi
-fi
+# if [[ -z "$MPDIR" ]]; then
+# 	# shellcheck disable=SC2016
+# 	echo >&2 'WARNING: Using default value for $MPDIR in openmpiscript'
+# 	MPDIR=/usr/lib64/openmpi
+# fi
 PATH="$MPDIR/bin:.:$PATH"
 export PATH
 
