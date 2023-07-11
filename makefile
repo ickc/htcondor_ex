@@ -20,8 +20,10 @@ shell-format:
 	find . \( -name '*.sh' -o -name openmpiscript \) -exec shfmt --write --simplify --case-indent --space-redirects {} +
 
 clean:
-	rm -rf bin
 	find examples -mindepth 1 -maxdepth 1 -type d -exec $(MAKE) -C {} clean \;
+
+Clean: clean
+	rm -rf bin
 
 print-%:
 	$(info $* = $($*))
