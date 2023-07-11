@@ -73,7 +73,7 @@ EXINT="$(condor_config_val OPENMPI_EXCLUDE_NETWORK_INTERFACES)"
 # so that OpenMPI caches all data under the user's scratch directory.
 # Not having /tmp mounted under scratch may hang mpi jobs.
 _USE_SCRATCH="$(condor_config_val MOUNT_UNDER_SCRATCH)"
-if [[ -z "$_USE_SCRATCH" ]]; then
+if [[ -z $_USE_SCRATCH ]]; then
 	echo >&2 "WARNING: MOUNT_UNDER_SCRATCH not set in condor_config"
 elif test "${_USE_SCRATCH#*/tmp}" == "$_USE_SCRATCH"; then
 	echo >&2 "WARNING: /tmp not included in MOUNT_UNDER_SCRATCH"
@@ -89,7 +89,7 @@ fi
 # export PATH
 
 # If EXINT is not set, then use some default values
-if [[ -z "$EXINT" ]]; then
+if [[ -z $EXINT ]]; then
 	# shellcheck disable=SC2016
 	echo >&2 'WARNING: Using default values for $EXINT in openmpiscript'
 	EXINT="docker0,virbr0"
@@ -102,12 +102,12 @@ _mpirun_pid=0
 CONDOR_CHIRP="$(condor_config_val libexec)/condor_chirp"
 force_cleanup() {
 	# Forward SIGTERM to the orted launcher
-	if [[ "$_orted_launcher_pid" != 0 ]]; then
+	if [[ $_orted_launcher_pid != 0 ]]; then
 		kill -s SIGTERM "$_orted_launcher_pid"
 	fi
 
 	# Cleanup mpirun
-	if [[ "$_CONDOR_PROCNO" != 0 && "$_mpirun_pid" != 0 ]]; then
+	if [[ $_CONDOR_PROCNO != 0 && $_mpirun_pid != 0 ]]; then
 		"$CONDOR_CHIRP" ulog "Node $_CONDOR_PROCNO caught SIGTERM, cleaning up mpirun"
 		rm "$HOSTFILE"
 
@@ -118,14 +118,14 @@ force_cleanup() {
 		for _ in {1..30}; do
 			kill -0 "$_mpirun_pid" 2> /dev/null # returns 0 if running
 			_mpirun_killed=$?
-			if [[ "$_mpirun_killed" != 0 ]]; then
+			if [[ $_mpirun_killed != 0 ]]; then
 				break
 			fi
 			sleep 1
 		done
 
 		# If mpirun is still running, send SIGKILL
-		if [[ "$_mpirun_killed" != 0 ]]; then
+		if [[ $_mpirun_killed != 0 ]]; then
 			"$CONDOR_CHIRP" ulog "mpirun hung on Node ${_CONDOR_PROCNO}, sending SIGKILL!"
 			kill -s SIGKILL "$_mpirun_pid"
 		fi
@@ -142,7 +142,7 @@ trap force_cleanup SIGTERM
 # Run the orted launcher (gets orted command from condor_chirp)
 "$ORTED_LAUNCHER" &
 _orted_launcher_pid="$!"
-if [[ "$_CONDOR_PROCNO" != 0 ]]; then
+if [[ $_CONDOR_PROCNO != 0 ]]; then
 	# If not on node 0, wait for orted
 	wait "$_orted_launcher_pid"
 	exit "$?"
