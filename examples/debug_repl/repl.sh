@@ -4,14 +4,14 @@
 
 COLUMNS=72
 
-print_double_line () {
-    eval printf %.0s= '{1..'"${COLUMNS}"\}
-    echo
+print_double_line() {
+	eval printf %.0s= '{1..'"${COLUMNS}"\}
+	echo
 }
 
-print_line () {
-    eval printf %.0s- '{1..'"${COLUMNS}"\}
-    echo
+print_line() {
+	eval printf %.0s- '{1..'"${COLUMNS}"\}
+	echo
 }
 
 ########################################################################
