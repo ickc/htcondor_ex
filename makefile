@@ -17,7 +17,7 @@ format: c-format shell-format
 c-format:
 	find src -name '*.c' -exec clang-format -i --style=Google {} +
 shell-format:
-	find . -name '*.sh' -exec shfmt --write --simplify --case-indent --space-redirects {} +
+	find . \( -name '*.sh' -o -name openmpiscript \) -exec shfmt --write --simplify --case-indent --space-redirects {} +
 
 clean:
 	rm -rf bin
