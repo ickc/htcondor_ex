@@ -17,7 +17,13 @@ print_line () {
 ########################################################################
 
 print_double_line
+echo "HTCondor config summary:"
+print_line
+condor_config_val -summary
+
+print_double_line
 echo "Current environment:"
+print_line
 env
 
 print_double_line
@@ -28,6 +34,7 @@ module load mpi/openmpi3-x86_64
 
 print_double_line
 echo "Current environment:"
+print_line
 env
 
 print_double_line
