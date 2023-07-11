@@ -1,4 +1,5 @@
-SHELL := /usr/bin/env bash
+SHELL = /bin/bash
+
 MPICC ?= mpicc
 
 C_SRC = $(wildcard src/*.c)
@@ -9,7 +10,7 @@ all: $(C_EXE)
 
 bin/%: src/%.c
 	@mkdir -p $(@D)
-	${MPICC} -o $@ $<
+	$(MPICC) -o $@ $<
 
 .PHONY: format c-format clean
 format: c-format
@@ -17,7 +18,8 @@ c-format:
 	find src -name '*.c' -exec clang-format -i --style=Google {} +
 
 clean:
-	find examples -mindepth 1 -maxdepth 1 -type d -exec make -C {} clean \;
+	rm -rf bin
+	find examples -mindepth 1 -maxdepth 1 -type d -exec $(MAKE) -C {} clean \;
 
 print-%:
-    $(info $* = $($*))
+	$(info $* = $($*))
