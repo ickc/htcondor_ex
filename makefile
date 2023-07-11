@@ -12,10 +12,12 @@ bin/%: src/%.c
 	@mkdir -p $(@D)
 	$(MPICC) -o $@ $<
 
-.PHONY: format c-format clean
-format: c-format
+.PHONY: format c-format shell-format clean
+format: c-format shell-format
 c-format:
 	find src -name '*.c' -exec clang-format -i --style=Google {} +
+shell-format:
+	find . -name '*.sh' -exec shfmt --write --simplify --case-indent --space-redirects {} +
 
 clean:
 	rm -rf bin
