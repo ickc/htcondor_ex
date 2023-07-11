@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
   long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
   // Print off a hello world message
-  printf("MPI rank %d (/%d) say hello from CPU %d (/%d), and processor %s\n",
-         world_rank, world_size, cpu, number_of_processors, processor_name);
+  printf("%s,%d,%d,%d,%ld\n", processor_name, world_rank, world_size, cpu,
+         number_of_processors);
 
   // Finalize the MPI environment. No more MPI calls can be made after this
   MPI_Finalize();
