@@ -15,7 +15,30 @@ Under the directory `examples/`, you will find subdirectories of examples.
 - Compilation: binaries are put inside `bin/`
     - Pre-compiled binaries: `make download` and it will download precompiled binaries compiled using `module load mpi/openmpi3-x86_64`.
     - To compile it yourself, the only way to do it as of writing is to request an interactive node first, inside that, run `module load mpi/openmpi3-x86_64` then `make`. How you transfer it back to the login node is up to you. If you want to use rsync, setup your ssh keys beforehand.
-- Wrapper script: Running MPI via HTCondor requires a wrapper script. HTCondor provided wrappers for OpenMPI and MPICH. The wrapper for OpenMPI, `openmpiscript`, does not work out of the box. A modified version is provided at `src/`.
+- Wrapper script: Running MPI via HTCondor requires a wrapper script.
+    - `openmpiscript`: HTCondor provided wrappers for OpenMPI and MPICH. The wrapper for OpenMPI, `openmpiscript`, does not work out of the box. A modified version is provided at `src/`.
+    - `cbatch_openmpi.sh`: a refactored version of `openmpiscript` to provide user more control over the environment and the mpirun command to use. This is more similar to `sbatch` from SLURM for example.
+    
+        - usage: `cbatch_openmpi.sh <env.sh> <mpirun.sh>`
+        - the `<env.sh>` is a script that setup the environment, including OpenMPI.
+        
+            Example:
+            
+            ```sh
+            module load mpi/openmpi3-x86_64
+            ```
+
+        - the `<mpirun.sh>` is a script that runs mpirun with the desired arguments,
+        - this script can either setup the host on their own, or use the 2 convenience functions provided:
+            - `set_OMPI_HOST_one_slot_per_condor_proc` setup one slot per condor process, useful for hybrid-MPI
+            - `set_OMPI_HOST_one_slot_per_CPU` setup one slot per CPU
+        
+            Example:
+
+            ```sh
+            set_OMPI_HOST_one_slot_per_condor_proc
+            mpirun -host "$OMPI_HOST" ...
+            ```
 
 Descriptions:
 
