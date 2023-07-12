@@ -1,6 +1,8 @@
+CSV = $(shell find . -name '*.csv' \! -name header.csv \! -name mpi.csv | sort -V)
+
 default: mpi.csv
 
-mpi.csv: header.csv 0.csv 1.csv 2.csv 3.csv 4.csv 5.csv 6.csv 7.csv
+mpi.csv: header.csv $(CSV)
 	cat $^ > $@
 
 submit:
@@ -9,3 +11,6 @@ submit:
 clean:
 	rm -f *.log *.out *.err *.txt
 	find . -name '*.csv' \! -name 'header.csv' -delete
+
+print-%:
+	$(info $* = $($*))
