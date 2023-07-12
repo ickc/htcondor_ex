@@ -54,7 +54,6 @@ trap force_cleanup SIGTERM
 ########################################################################################################################
 
 module load mpi/openmpi3-x86_64
-MPDIR=/usr/lib64/openmpi3
 
 # Run the orted launcher (gets orted command from condor_chirp)
 "$CONDOR_LIBEXEC/orted_launcher.sh" &
@@ -99,7 +98,7 @@ export OMPI_MCA_btl_tcp_if_exclude="lo,$OPENMPI_EXCLUDE_NETWORK_INTERFACES" # ex
 
 # Run mpirun in the background and wait for it to exit
 # shellcheck disable=SC2068
-mpirun -v --prefix "$MPDIR" -hostfile "$HOSTFILE" "$EXECUTABLE" $@ &
+mpirun -v -hostfile "$HOSTFILE" "$EXECUTABLE" $@ &
 _mpirun_pid="$!"
 wait "$_mpirun_pid"
 _mpirun_exit="$?"
