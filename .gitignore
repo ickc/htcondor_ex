@@ -7,6 +7,7 @@
 examples/parallel/log
 examples/parallel-cpu/logfile
 bin/
+bin.tar.gz
 examples/parallel-cpu/infile.*
 examples/parallel-cpu/outfile.*
 examples/parallel-cpu/errfile.*
