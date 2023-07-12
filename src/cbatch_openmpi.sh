@@ -2,12 +2,23 @@
 
 # this modifies from
 # https://github.com/htcondor/htcondor/blob/main/src/condor_examples/openmpiscript
-#* functionally different changes here:
+
+#* usage: cbatch_openmpi.sh <env.sh> <mpirun.sh>
+#* this is refactor from openmpiscript to provide user more control over the environment and the mpirun command to use.
+#* the <env.sh> is a script that setup the environment, including OpenMPI. e.g. contains `module load mpi/openmpi3-x86_64`
+#* the <mpirun.sh> is a script that runs mpirun with the desired arguments,
+#* this script can either setup the host on their own, or use the 2 convenience functions provided below:
+#* set_OMPI_HOST_one_slot_per_condor_proc setup one slot per condor process, useful for hybrid-MPI
+#* set_OMPI_HOST_one_slot_per_CPU setup one slot per CPU
+#* then in the <mpirun.sh>, use `mpirun -host "$OMPI_HOST" ...`
+
+#* other functionally different changes from openmpiscript:
 #* remove redundant checks such as EXINT, _USE_SCRATCH
 #* remove MPDIR and --prefix=... in mpirun: module load is sufficient
 #* instead of generating a HOSTFILE and use mpirun --hostfile $HOSTFILE ..., use mpirun --host $OMPI_HOST ... instead.
 #* set OMPI_MCA_btl_base_warn_component_unused=0 to suppress warning about unused network interfaces
 #* remove chmod on executable, the user should have done this already
+#* refactor the usage of the script, rather than openmpiscript MPI_EXECUTABLE ARGS ..., use cbatch_openmpi.sh <env.sh> <mpirun.sh>. See above for documentation.
 
 # CONDOR_LIBEXEC=/usr/libexec/condor by default
 CONDOR_LIBEXEC="$(condor_config_val libexec)"
@@ -66,16 +77,21 @@ trap force_cleanup SIGTERM
 set_OMPI_HOST_one_slot_per_condor_proc() {
 	OMPI_HOST="$(seq -s ',' 0 $((_CONDOR_NPROCS - 1)))"
 }
+export -f set_OMPI_HOST_one_slot_per_condor_proc
 
 set_OMPI_HOST_one_slot_per_CPU() {
-
 	REQUEST_CPUS="$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)"
+	# shellcheck disable=SC2034
 	OMPI_HOST="$(seq -s ',' -f "%.0f:$REQUEST_CPUS" 0 $((_CONDOR_NPROCS - 1)))"
 }
+export -f set_OMPI_HOST_one_slot_per_CPU
 
 ########################################################################################################################
 
-module load mpi/openmpi3-x86_64
+PATH=".:$PATH"
+export PATH
+# shellcheck disable=SC1090
+. "$1"
 
 # Run the orted launcher (gets orted command from condor_chirp)
 "$CONDOR_LIBEXEC/orted_launcher.sh" &
@@ -85,10 +101,6 @@ if [[ $_CONDOR_PROCNO != 0 ]]; then
 	wait "$_orted_launcher_pid"
 	exit "$?"
 fi
-
-# Make sure the executable is executable
-EXECUTABLE="$1"
-shift
 
 # Set MCA values for running on HTCondor
 export OMPI_MCA_plm_rsh_agent="$CONDOR_LIBEXEC/get_orted_cmd.sh"            # use the helper script instead of ssh
@@ -100,10 +112,7 @@ export OMPI_MCA_btl_tcp_if_exclude="lo,$OPENMPI_EXCLUDE_NETWORK_INTERFACES" # ex
 export OMPI_MCA_btl_base_warn_component_unused=0                            # do not warn about unused network interfaces
 
 # Run mpirun in the background and wait for it to exit
-# shellcheck disable=SC2068
-set_OMPI_HOST_one_slot_per_CPU
-echo "Running mpirun with host configuration: $OMPI_HOST" >&2
-mpirun -v -host "$OMPI_HOST" "$EXECUTABLE" $@ &
+"$2" &
 _mpirun_pid="$!"
 wait "$_mpirun_pid"
 _mpirun_exit="$?"
