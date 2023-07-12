@@ -7,6 +7,7 @@
 #* remove MPDIR and --prefix=... in mpirun: module load is sufficient
 #* instead of generating a HOSTFILE and use mpirun --hostfile $HOSTFILE ..., use mpirun --host $OMPI_HOST ... instead.
 #* set OMPI_MCA_btl_base_warn_component_unused=0 to suppress warning about unused network interfaces
+#* remove chmod on executable, the user should have done this already
 
 # CONDOR_LIBEXEC=/usr/libexec/condor by default
 CONDOR_LIBEXEC="$(condor_config_val libexec)"
@@ -88,7 +89,6 @@ fi
 # Make sure the executable is executable
 EXECUTABLE="$1"
 shift
-chmod +x "$EXECUTABLE"
 
 # Set MCA values for running on HTCondor
 export OMPI_MCA_plm_rsh_agent="$CONDOR_LIBEXEC/get_orted_cmd.sh"            # use the helper script instead of ssh
