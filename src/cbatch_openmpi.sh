@@ -2,6 +2,9 @@
 
 # this modifies from
 # https://github.com/htcondor/htcondor/blob/main/src/condor_examples/openmpiscript
+#* functionally different changes here:
+#* remove redundant checks such as EXINT, _USE_SCRATCH
+#* remove MPDIR and --prefix=... in mpirun: module load is sufficient
 
 # configurations
 USE_OPENMP=false
