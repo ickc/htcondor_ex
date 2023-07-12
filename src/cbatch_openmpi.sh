@@ -6,6 +6,7 @@
 #* remove redundant checks such as EXINT, _USE_SCRATCH
 #* remove MPDIR and --prefix=... in mpirun: module load is sufficient
 #* instead of generating a HOSTFILE and use mpirun --hostfile $HOSTFILE ..., use mpirun --host $OMPI_HOST ... instead.
+#* set OMPI_MCA_btl_base_warn_component_unused=0 to suppress warning about unused network interfaces
 
 # CONDOR_LIBEXEC=/usr/libexec/condor by default
 CONDOR_LIBEXEC="$(condor_config_val libexec)"
@@ -96,6 +97,7 @@ export OMPI_MCA_orte_hetero_nodes=1                                         # do
 export OMPI_MCA_orte_startup_timeout=120                                    # allow two minutes before failing
 export OMPI_MCA_hwloc_base_binding_policy="none"                            # do not bind to cpu cores
 export OMPI_MCA_btl_tcp_if_exclude="lo,$OPENMPI_EXCLUDE_NETWORK_INTERFACES" # exclude unused tcp network interfaces
+export OMPI_MCA_btl_base_warn_component_unused=0                            # do not warn about unused network interfaces
 
 # Run mpirun in the background and wait for it to exit
 # shellcheck disable=SC2068
