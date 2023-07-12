@@ -20,11 +20,11 @@ shell-format:
 	find . \( -name '*.sh' -o -name openmpiscript \) -exec shfmt --write --simplify --case-indent --space-redirects {} +
 
 tag:
-	git tag -m "Version $(cat VERSION)" $(cat VERSION)
-	git push origin $(cat VERSION)
+	git tag -m "Version $$(cat VERSION)" $$(cat VERSION)
+	git push origin $$(cat VERSION)
 upload:
 	tar -czf bin.tar.gz bin/
-	gh release upload $(cat VERSION) bin.tar.gz
+	gh release upload $$(cat VERSION) bin.tar.gz
 
 download:
 	mkdir -p bin
