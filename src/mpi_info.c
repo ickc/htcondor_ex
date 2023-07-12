@@ -12,7 +12,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int main(int argc, char** argv) {
+extern char **environ;
+
+int main(int argc, char **argv) {
+  char **s = environ;
+
   // Initialize the MPI environment. The two arguments to MPI Init are not
   // currently used by MPI implementations, but are there in case future
   // implementations might need the arguments.
@@ -35,9 +39,21 @@ int main(int argc, char** argv) {
 
   long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
+  char filename[256];
+  snprintf(filename, sizeof(filename), "%d.csv", world_rank);
+  fptr = fopen(filename, "w");
+
   // Print off a hello world message
-  printf("%s,%d,%d,%d,%ld\n", processor_name, world_rank, world_size, cpu,
-         number_of_processors);
+  fprintf(fptr, "%s,%d,%d,%d,%ld\n", processor_name, world_rank, world_size,
+          cpu, number_of_processors);
+  fclose(fptr);
+
+  snprintf(filename, sizeof(filename), "%d.txt", world_rank);
+  fptr = fopen(filename, "w");
+  for (; *s; s++) {
+    fprintf(fptr, "%s\n", *s);
+  }
+  fclose(fptr);
 
   // Finalize the MPI environment. No more MPI calls can be made after this
   MPI_Finalize();
