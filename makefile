@@ -24,7 +24,7 @@ tag:
 	git push origin $$(cat VERSION)
 upload:
 	tar -czf bin.tar.gz bin/
-	gh release upload $$(cat VERSION) bin.tar.gz
+	gh release create $$(cat VERSION) bin.tar.gz
 
 download:
 	mkdir -p bin
