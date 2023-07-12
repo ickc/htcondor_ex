@@ -16,6 +16,7 @@ extern char **environ;
 
 int main(int argc, char **argv) {
   char **s = environ;
+  FILE *fptr;
 
   // Initialize the MPI environment. The two arguments to MPI Init are not
   // currently used by MPI implementations, but are there in case future
