@@ -5,9 +5,7 @@
 #* functionally different changes here:
 #* remove redundant checks such as EXINT, _USE_SCRATCH
 #* remove MPDIR and --prefix=... in mpirun: module load is sufficient
-
-# configurations
-USE_OPENMP=false
+#* instead of generating a HOSTFILE and use mpirun --hostfile $HOSTFILE ..., use mpirun --host $OMPI_HOST ... instead.
 
 # CONDOR_LIBEXEC=/usr/libexec/condor by default
 CONDOR_LIBEXEC="$(condor_config_val libexec)"
@@ -29,7 +27,6 @@ force_cleanup() {
 	# Cleanup mpirun
 	if [[ $_CONDOR_PROCNO != 0 && $_mpirun_pid != 0 ]]; then
 		"$CONDOR_LIBEXEC/condor_chirp" ulog "Node $_CONDOR_PROCNO caught SIGTERM, cleaning up mpirun"
-		rm -f "$HOSTFILE"
 
 		# Send SIGTERM to mpirun and the orted launcher
 		kill -s SIGTERM "$_mpirun_pid"
@@ -54,6 +51,26 @@ force_cleanup() {
 }
 trap force_cleanup SIGTERM
 
+# functions for generating host ########################################################################################
+
+# These functions set the OMPI_HOST environment variable for the consumption of mpirun --host ...
+# set_OMPI_HOST_one_slot_per_condor_proc setup one slot per condor process, useful for hybrid-MPI
+# set_OMPI_HOST_one_slot_per_CPU setup one slot per CPU
+# usage:
+# set_OMPI_HOST_one_slot_per_condor_proc
+# mpirun --host "$OMPI_HOST" ...
+# while seq uses floating point, it should be nowhere near the limit we'd see an error here
+
+set_OMPI_HOST_one_slot_per_condor_proc () {
+    OMPI_HOST="$(seq -s ',' 0 $((_CONDOR_NPROCS - 1)))"
+}
+
+set_OMPI_HOST_one_slot_per_CPU () {
+
+	REQUEST_CPUS="$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)"
+    OMPI_HOST="$(seq -s ',' -f "%.0f:$REQUEST_CPUS" 0 $((_CONDOR_NPROCS - 1)))"
+}
+
 ########################################################################################################################
 
 module load mpi/openmpi3-x86_64
@@ -66,25 +83,6 @@ if [[ $_CONDOR_PROCNO != 0 ]]; then
 	wait "$_orted_launcher_pid"
 	exit "$?"
 fi
-
-## head node (node 0) setup
-# get a unique hostfile name
-HOSTFILE=hosts
-while [[ -f "$_CONDOR_SCRATCH_DIR/$HOSTFILE" ]]; do
-	HOSTFILE="x$HOSTFILE"
-done
-HOSTFILE="$_CONDOR_SCRATCH_DIR/$HOSTFILE"
-# Build the hostfile
-REQUEST_CPUS="$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)"
-for node in $(seq 0 $((_CONDOR_NPROCS - 1))); do
-	if "$USE_OPENMP"; then
-		# OpenMP will do the threading on the execute node
-		echo "$node slots=1" >> "$HOSTFILE"
-	else
-		# OpenMPI will do the threading on the execute node
-		echo "$node slots=$REQUEST_CPUS" >> "$HOSTFILE"
-	fi
-done
 
 # Make sure the executable is executable
 EXECUTABLE="$1"
@@ -101,7 +99,9 @@ export OMPI_MCA_btl_tcp_if_exclude="lo,$OPENMPI_EXCLUDE_NETWORK_INTERFACES" # ex
 
 # Run mpirun in the background and wait for it to exit
 # shellcheck disable=SC2068
-mpirun -v -hostfile "$HOSTFILE" "$EXECUTABLE" $@ &
+set_OMPI_HOST_one_slot_per_CPU
+echo "Running mpirun with host configuration: $OMPI_HOST" >&2
+mpirun -v -host "$OMPI_HOST" "$EXECUTABLE" $@ &
 _mpirun_pid="$!"
 wait "$_mpirun_pid"
 _mpirun_exit="$?"
@@ -109,5 +109,4 @@ _mpirun_exit="$?"
 ## clean up
 # Wait for orted to finish
 wait "$_orted_launcher_pid"
-rm -f "$HOSTFILE"
 exit "$_mpirun_exit"
