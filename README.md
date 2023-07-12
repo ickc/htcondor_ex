@@ -38,5 +38,8 @@ Descriptions:
 `mpi-hello-world`
 : Running MPI executables in parallel universe. Note the use of our own `openmpiscript` here.
 
+`cbatch-*`
+: Variants of MPI jobs that uses our own `cbatch_openmpi.sh` instead of `openmpiscript`.
+
 `debug*`
 : These are various jobs to test the system. Feel free to study and use them.
