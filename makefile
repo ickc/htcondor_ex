@@ -27,11 +27,7 @@ upload:
 	gh release create $$(cat VERSION) bin.tar.gz
 
 download:
-	mkdir -p bin
-	# mpi_hello_world
-	cd bin; wget https://github.com/ickc/mpi-hello-world/releases/download/v0.1.0/mpi_hello_world-openmpi_3.1.3.gz && gzip -d mpi_hello_world-openmpi_3.1.3.gz && chmod +x mpi_hello_world-openmpi_3.1.3 && mv mpi_hello_world-openmpi_3.1.3 mpi_hello_world
-	# mpi_info
-	cd bin; wget https://github.com/ickc/htcondor_ex/releases/download/v0.2.0/mpi_info && chmod +x mpi_info
+	wget -qO- 'https://github.com/ickc/htcondor_ex/releases/latest/download/bin.tar.gz' | tar -xzf -
 
 clean:
 	find examples -mindepth 1 -maxdepth 1 -type d -exec $(MAKE) -C {} clean \;
