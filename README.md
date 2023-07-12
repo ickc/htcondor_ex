@@ -15,6 +15,7 @@ Under the directory `examples/`, you will find subdirectories of examples.
 - Compilation: binaries are put inside `bin/`
     - Pre-compiled binaries: `make download` and it will download precompiled binaries compiled using `module load mpi/openmpi3-x86_64`.
     - To compile it yourself, the only way to do it as of writing is to request an interactive node first, inside that, run `module load mpi/openmpi3-x86_64` then `make`. How you transfer it back to the login node is up to you. If you want to use rsync, setup your ssh keys beforehand.
+- Wrapper script: Running MPI via HTCondor requires a wrapper script. HTCondor provided wrappers for OpenMPI and MPICH. The wrapper for OpenMPI, `openmpiscript`, does not work out of the box. A modified version is provided at `src/`.
 
 Descriptions:
 
@@ -35,4 +36,4 @@ Descriptions:
 : Running MPI executables in vanilla universe. This is simple to do.
 
 `mpi-hello-world`
-: Running MPI executables in parallel universe. This requires a modified version of the `openmpiscript` wrapper that HTCondor provided. See `src/`.
+: Running MPI executables in parallel universe. Note the use of our own `openmpiscript` here.
