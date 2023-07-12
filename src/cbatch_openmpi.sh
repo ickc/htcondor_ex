@@ -61,14 +61,14 @@ trap force_cleanup SIGTERM
 # mpirun --host "$OMPI_HOST" ...
 # while seq uses floating point, it should be nowhere near the limit we'd see an error here
 
-set_OMPI_HOST_one_slot_per_condor_proc () {
-    OMPI_HOST="$(seq -s ',' 0 $((_CONDOR_NPROCS - 1)))"
+set_OMPI_HOST_one_slot_per_condor_proc() {
+	OMPI_HOST="$(seq -s ',' 0 $((_CONDOR_NPROCS - 1)))"
 }
 
-set_OMPI_HOST_one_slot_per_CPU () {
+set_OMPI_HOST_one_slot_per_CPU() {
 
 	REQUEST_CPUS="$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)"
-    OMPI_HOST="$(seq -s ',' -f "%.0f:$REQUEST_CPUS" 0 $((_CONDOR_NPROCS - 1)))"
+	OMPI_HOST="$(seq -s ',' -f "%.0f:$REQUEST_CPUS" 0 $((_CONDOR_NPROCS - 1)))"
 }
 
 ########################################################################################################################
