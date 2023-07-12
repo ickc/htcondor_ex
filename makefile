@@ -31,6 +31,7 @@ download:
 
 clean:
 	find examples -mindepth 1 -maxdepth 1 -type d -exec $(MAKE) -C {} clean \;
+	rm -f bin.tar.gz
 
 Clean: clean
 	rm -rf bin
