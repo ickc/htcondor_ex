@@ -21,6 +21,7 @@ shell-format:
 
 tag:
 	git tag -a $(cat VERSION) -m "Version $(cat VERSION)"
+	git push origin $(cat VERSION)
 upload:
 	tar -czf bin.tar.gz bin/
 	gh release upload $(cat VERSION) bin.tar.gz
