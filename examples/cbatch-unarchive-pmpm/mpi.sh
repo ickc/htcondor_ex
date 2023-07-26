@@ -22,7 +22,8 @@ echo "Running mpirun with host configuration: $OMPI_HOST" >&2
 
 # print_double_line
 echo "Running TOAST tests..."
-mpirun -v -host "$OMPI_HOST" python -c "import toast.tests; toast.tests.run()"
+# mpirun -v -host "$OMPI_HOST" python -c 'import toast.tests; toast.tests.run(name="observation")'
+mpirun -v -host "$OMPI_HOST" python -c 'import toast.tests; toast.tests.run()'
 
 # seems to not able to run 2 mpirun in a job
 # print_double_line
