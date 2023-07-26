@@ -27,11 +27,11 @@ print_line
 env
 
 print_double_line
-echo "Unarchive environment..."
-tar -xzf pmpm-20230718-Linux-x86_64-OpenMPI-ucx.tar.gz -C /tmp
+echo "$(date) unarchive environment..."
+tar -xzf pmpm-20230718-Linux-x86_64-OpenMPI.tar.gz -C /tmp
 
 print_double_line
-echo "Activate environment..."
+echo "$(date) activate environment..."
 source /tmp/pmpm-20230718/bin/activate /tmp/pmpm-20230718
 print_line
 echo "Python is available at:"
