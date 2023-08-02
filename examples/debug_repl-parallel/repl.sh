@@ -17,6 +17,11 @@ print_line() {
 ########################################################################
 
 print_double_line
+echo "hostname: $(hostname)"
+print_line
+echo "CPU:"
+print_line
+lscpu
 echo Hello from $_CONDOR_PROCNO of $_CONDOR_NPROCS
 
 print_double_line
