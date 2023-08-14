@@ -10,6 +10,7 @@
 #include <mpi.h>
 #include <sched.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 extern char **environ;
@@ -40,8 +41,11 @@ int main(int argc, char **argv) {
 
   long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
+  // read _CONDOR_SLOT from env var
+  char *temp = getenv("_CONDOR_SLOT");
+  char *slot = temp ? temp : "";
   char filename[256];
-  snprintf(filename, sizeof(filename), "%d.csv", world_rank);
+  snprintf(filename, sizeof(filename), "%s_%d.csv", slot, world_rank);
   fptr = fopen(filename, "w");
 
   // Print off a hello world message
@@ -49,7 +53,7 @@ int main(int argc, char **argv) {
           cpu, number_of_processors);
   fclose(fptr);
 
-  snprintf(filename, sizeof(filename), "%d.txt", world_rank);
+  snprintf(filename, sizeof(filename), "%s_%d.txt", slot, world_rank);
   fptr = fopen(filename, "w");
   for (; *s; s++) {
     fprintf(fptr, "%s\n", *s);
