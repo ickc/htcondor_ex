@@ -11,6 +11,7 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 extern char **environ;
@@ -41,11 +42,33 @@ int main(int argc, char **argv) {
 
   long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
 
+  // read hostname
+  char hostname[1024];
+  hostname[1023] = '\0';  // ensure null-termination
+
+  // Get the hostname
+  if (gethostname(hostname, sizeof(hostname) - 1) != 0) {
+    perror("gethostname");
+    return 1;
+  }
+
+  // Pointer to hold the starting position of the desired substring
+  char *hostname_stem = hostname;
+
+  // Find the first dot
+  char *dot_position = strchr(hostname, '.');
+  if (dot_position) {
+    // Null-terminate the string at the dot position to get the desired
+    // substring
+    *dot_position = '\0';
+  }
+
   // read _CONDOR_SLOT from env var
   char *temp = getenv("_CONDOR_SLOT");
   char *slot = temp ? temp : "";
   char filename[256];
-  snprintf(filename, sizeof(filename), "%s_%d.csv", slot, world_rank);
+  snprintf(filename, sizeof(filename), "%s_%s_%d.csv", hostname_stem, slot,
+           world_rank);
   fptr = fopen(filename, "w");
 
   // Print off a hello world message
@@ -53,7 +76,8 @@ int main(int argc, char **argv) {
           cpu, number_of_processors);
   fclose(fptr);
 
-  snprintf(filename, sizeof(filename), "%s_%d.txt", slot, world_rank);
+  snprintf(filename, sizeof(filename), "%s_%s_%d.txt", hostname_stem, slot,
+           world_rank);
   fptr = fopen(filename, "w");
   for (; *s; s++) {
     fprintf(fptr, "%s\n", *s);
