@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# modified from /usr/share/doc/condor-9.0.17/examples/mp1script
+
+_CONDOR_PROCNO=$_CONDOR_PROCNO
+_CONDOR_NPROCS=$_CONDOR_NPROCS
+
+CONDOR_SSH=`condor_config_val libexec`
+CONDOR_SSH=$CONDOR_SSH/condor_ssh
+
+SSHD_SH=`condor_config_val libexec`
+SSHD_SH=$SSHD_SH/sshd.sh
+
+. $SSHD_SH $_CONDOR_PROCNO $_CONDOR_NPROCS 
+
+# If not the head node, just sleep forever, to let the
+# sshds run
+if [ $_CONDOR_PROCNO -ne 0 ]
+then
+		wait
+		sshd_cleanup
+		exit 0
+fi
+
+export P4_RSHCOMMAND=$CONDOR_SSH
+
+CONDOR_CONTACT_FILE=$_CONDOR_SCRATCH_DIR/contact
+export CONDOR_CONTACT_FILE
+
+echo "Created the following contact file:"
+cat $CONDOR_CONTACT_FILE
+
+# reorder contact file columns 4 and 5 and remove column 6 which is the format condor_ssh expected
+awk '{ temp=$4; $4=$5; $5=temp; print }' $CONDOR_CONTACT_FILE > $CONDOR_CONTACT_FILE.tmp
+mv $CONDOR_CONTACT_FILE.tmp $CONDOR_CONTACT_FILE
+echo "Reordered the following contact file:"
+cat $CONDOR_CONTACT_FILE
+
+# The second field in the contact file is the machine name
+# that condor_ssh knows how to use
+sort -n -k 1 < $CONDOR_CONTACT_FILE | awk '{print $2}' > machines
+
+echo "Trying to reach other hosts via ssh..."
+# use awk to extract column 1 from the contact file and loop over it and run $CONDOR_SSH $h date
+awk '{print $1}' $CONDOR_CONTACT_FILE | while read h
+do
+	echo "Trying to reach $h via ssh by running $CONDOR_SSH $h touch ssh_success..."
+	$CONDOR_SSH $h touch ssh_success
+done
+
+sshd_cleanup
+rm -f machines
+
+exit $?
