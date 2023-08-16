@@ -2,4 +2,4 @@ submit:
 	condor_submit repl.ini
 
 clean:
-	rm -f *.log *.out
+	rm -f *.log *.out *.err

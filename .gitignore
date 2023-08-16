@@ -3,7 +3,7 @@
 *.log
 *.txt
 *.csv
-!examples/debug-mpi/header.csv
+!header.csv
 examples/parallel/log
 examples/parallel-cpu/logfile
 bin/
