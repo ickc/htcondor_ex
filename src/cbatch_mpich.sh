@@ -53,6 +53,20 @@ echo "Starting $SSHD_SH"
 # shellcheck disable=SC1090
 . "$SSHD_SH" "$_CONDOR_PROCNO" "$_CONDOR_NPROCS"
 
+# setup *_NUM_THREADS
+# This is the no. of logical CPUs requested
+REQUEST_CPUS="$(condor_q -jobads "$_CONDOR_JOB_AD" -af RequestCpus)"
+echo "$REQUEST_CPUS logical CPUs requested" >&2
+# devide this by 2 to get the no. of physical CPUs
+REQUEST_CPUS="$((REQUEST_CPUS / 2))"
+echo "$REQUEST_CPUS physical CPUs requested" >&2
+export OPENBLAS_NUM_THREADS="$REQUEST_CPUS"
+export JULIA_NUM_THREADS="$REQUEST_CPUS"
+export TF_NUM_THREADS="$REQUEST_CPUS"
+export MKL_NUM_THREADS="$REQUEST_CPUS"
+export NUMEXPR_NUM_THREADS="$REQUEST_CPUS"
+export OMP_NUM_THREADS="$REQUEST_CPUS"
+
 if [[ "$_CONDOR_PROCNO" == 0 ]]; then
 	CONDOR_CONTACT_FILE="$_CONDOR_SCRATCH_DIR/contact"
 	export HYDRA_HOST_FILE="$_CONDOR_SCRATCH_DIR/machines"
