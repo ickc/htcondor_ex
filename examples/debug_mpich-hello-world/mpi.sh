@@ -14,6 +14,12 @@ print_line() {
 	echo
 }
 
+mpiexec () {
+	print_double_line
+	echo "Running mpiexec -launcher ssh -launcher-exec $CONDOR_SSH $@"
+	command mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" "$@"
+}
+
 # env ##################################################################
 
 print_double_line
@@ -73,11 +79,11 @@ cat $HYDRA_HOST_FILE
 
 print_double_line
 echo "Running MPI hello world..."
-mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" -n 4 ./mpi_hello_world
+mpiexec -n 4 ./mpi_hello_world
 
 print_double_line
 echo "Running MPI info..."
-mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" -n 4 ./mpi_info
+mpiexec -n 4 ./mpi_info
 
 # cleanup MPICH ########################################################
 
