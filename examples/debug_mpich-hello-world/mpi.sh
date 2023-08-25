@@ -16,8 +16,8 @@ print_line() {
 
 mpiexec () {
 	print_double_line
-	echo "Running mpiexec -launcher ssh -launcher-exec $CONDOR_SSH $@"
-	command mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" "$@"
+	echo Running mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" -wdir "$_CONDOR_SCRATCH_DIR" "$@"
+	command mpiexec -launcher ssh -launcher-exec "$CONDOR_SSH" -wdir "$_CONDOR_SCRATCH_DIR" "$@"
 }
 
 # env ##################################################################
@@ -64,26 +64,28 @@ then
 fi
 
 CONDOR_CONTACT_FILE=$_CONDOR_SCRATCH_DIR/contact
-echo "Created the following contact file:"
+echo "Created the following contact file at $CONDOR_CONTACT_FILE:"
 cat "$CONDOR_CONTACT_FILE"
 
 # The second field in the contact file is the machine name
 # that condor_ssh knows how to use
-sort -n -k 1 < $CONDOR_CONTACT_FILE | awk '{print $2}' > $_CONDOR_SCRATCH_DIR/machines
+sort -n -k 1 < $CONDOR_CONTACT_FILE | awk '{print $1}' > $_CONDOR_SCRATCH_DIR/machines
 
 export HYDRA_HOST_FILE=$_CONDOR_SCRATCH_DIR/machines
-echo "Created the following machine file:"
+echo "Created the following machine file at $HYDRA_HOST_FILE:"
 cat $HYDRA_HOST_FILE
 
 # MPI applications #####################################################
 
-print_double_line
-echo "Running MPI hello world..."
-mpiexec -n 4 ./mpi_hello_world
+export HYDRA_DEBUG=1
 
 print_double_line
-echo "Running MPI info..."
-mpiexec -n 4 ./mpi_info
+echo "Running MPI hello world..."
+mpiexec -n 2 ./mpi_hello_world
+
+# print_double_line
+# echo "Running MPI info..."
+# mpiexec -n 2 ./mpi_info
 
 # cleanup MPICH ########################################################
 
