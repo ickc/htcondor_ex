@@ -12,3 +12,4 @@ dist/
 examples/parallel-cpu/infile.*
 examples/parallel-cpu/outfile.*
 examples/parallel-cpu/errfile.*
+examples/debug_gfal/ac.pem
