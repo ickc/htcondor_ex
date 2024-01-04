@@ -76,8 +76,8 @@ if [[ "$_CONDOR_PROCNO" == 0 ]]; then
 
 	print_double_line
 	echo "Starting $2"
-	# shellcheck disable=SC1090
-	. "$2"
+	chmod +x "$2"
+	"$2"
 	mpi_exit_code=$?
 
 	# cleanup MPICH

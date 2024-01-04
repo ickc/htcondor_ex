@@ -139,6 +139,7 @@ export OMPI_MCA_btl_tcp_if_exclude="lo,$OPENMPI_EXCLUDE_NETWORK_INTERFACES" # ex
 export OMPI_MCA_btl_base_warn_component_unused=0                            # do not warn about unused network interfaces
 
 # Run mpirun in the background and wait for it to exit
+chmod +x "$2"
 "$2" &
 _mpirun_pid="$!"
 wait "$_mpirun_pid"
