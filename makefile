@@ -29,6 +29,10 @@ upload:
 download:
 	wget -qO- 'https://github.com/ickc/htcondor_ex/releases/latest/download/bin.tar.gz' | tar -xzf -
 
+# to be run on vm77 for sharing to other users
+opt:
+	cp -f src/cbatch_openmpi.sh /opt/simonsobservatory/cbatch_openmpi
+
 clean:
 	find examples -mindepth 1 -maxdepth 1 -type d -exec $(MAKE) -C {} clean \;
 	rm -f bin.tar.gz
